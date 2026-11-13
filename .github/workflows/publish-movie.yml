@@ -95,9 +95,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
         run: |
           tag=movie-latest
-          notes="Rendered from commit $GITHUB_SHA on $(date -u +%Y-%m-%d) by the publish-movie workflow after develop was merged into main. The attached file is replaced at each such merge."
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            how="a manual run on branch $GITHUB_REF_NAME"
+          else
+            how="the merge of develop into main"
+          fi
+          notes="Rendered from commit $GITHUB_SHA on $(date -u +%Y-%m-%d) by the publish-movie workflow after $how. The attached file is replaced at each merge of develop into main and at each manual run with publishing switched on."
           if gh release view "$tag" > /dev/null 2>&1; then
             gh release edit "$tag" --notes "$notes"
           else

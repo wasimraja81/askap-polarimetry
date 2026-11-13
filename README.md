@@ -58,6 +58,11 @@ for each SBID, its fit and its place in the history); see
 the [`movie-latest` release](../../releases/tag/movie-latest) and replaced each
 time `develop` is merged into `main`.
 
+<video src="https://github.com/wasimraja81/askap-polarimetry/releases/download/movie-latest/leakage_history.mp4" controls width="100%"></video>
+
+If the player does not appear, download the file from the
+[`movie-latest` release](../../releases/tag/movie-latest).
+
 The measurements are in [`results/sbs_all_time_ordered.csv`](results/sbs_all_time_ordered.csv):
 one row per SBID with observation time, leakage values and errors, quality
 flag, software versions and the holography model.
