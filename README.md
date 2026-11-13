@@ -10,6 +10,16 @@ history.
 of observation time. 733 have a leakage measurement; the 53 earliest (to
 2023-05-23) have no validation report on CASDA.
 
+## Movie
+
+One frame per SBID in observation order: its components, the fit and its place
+in the history. The latest render:
+
+<video src="https://github.com/wasimraja81/askap-polarimetry/releases/download/movie-latest/leakage_history.mp4" controls width="100%"></video>
+
+If the player does not appear, download the file from the
+[`movie-latest` release](../../releases/tag/movie-latest).
+
 ## Result
 
 The leakage is reported as an **upper limit, in percent of Stokes I**, from the
@@ -57,11 +67,6 @@ for each SBID, its fit and its place in the history); see
 [docs/CODE.md](docs/CODE.md). The movie file is not stored in the repository; the latest render is attached to
 the [`movie-latest` release](../../releases/tag/movie-latest) and replaced each
 time `develop` is merged into `main`.
-
-<video src="https://github.com/wasimraja81/askap-polarimetry/releases/download/movie-latest/leakage_history.mp4" controls width="100%"></video>
-
-If the player does not appear, download the file from the
-[`movie-latest` release](../../releases/tag/movie-latest).
 
 The measurements are in [`results/sbs_all_time_ordered.csv`](results/sbs_all_time_ordered.csv):
 one row per SBID with observation time, leakage values and errors, quality
