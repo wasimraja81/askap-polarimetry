@@ -209,6 +209,12 @@ to a release called `movie-latest`. The MP4 is never stored in the repository.
   run `src/make_movie.py`; check that the movie has one frame per table row;
   create the release if needed and replace the file attached to it. The movie
   therefore matches the committed table, not the state of CASDA on the day.
+- **The page.** At the same time the workflow deploys a page with the movie in a
+  video player and two figures to GitHub Pages
+  (`https://wasimraja81.github.io/askap-polarimetry/`). The page is
+  `.github/site/index.html`. The repository's Pages source must be set to
+  "GitHub Actions", and the `github-pages` environment must allow deployments
+  from the branches that publish (`main`, and `develop` for manual runs).
 - **The release.** `movie-latest` is not marked as the latest release. The tag
   stays at the commit that first created it; the release notes give the commit
   that the attached file was rendered from.

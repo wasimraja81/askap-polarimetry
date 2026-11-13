@@ -25,6 +25,9 @@ jobs:
   movie:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    outputs:
+      publish: ${{ steps.gate.outputs.publish }}
+      run: ${{ steps.gate.outputs.run }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -111,6 +114,20 @@ jobs:
           fi
           gh release upload "$tag" movies/leakage_history.mp4 --clobber
 
+      - name: Build the page that shows the movie
+        if: steps.gate.outputs.run == 'true' && steps.gate.outputs.publish == 'true'
+        run: |
+          mkdir site
+          cp .github/site/index.html site/
+          cp movies/leakage_history.mp4 site/
+          cp figures/history_timeline.png figures/history_monthly_stats.png site/
+
+      - name: Upload the page
+        if: steps.gate.outputs.run == 'true' && steps.gate.outputs.publish == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
       - name: Keep the movie as a workflow artifact when it is not published
         if: steps.gate.outputs.run == 'true' && steps.gate.outputs.publish != 'true'
         uses: actions/upload-artifact@v4
@@ -118,3 +135,18 @@ jobs:
           name: leakage_history
           path: movies/leakage_history.mp4
           retention-days: 7
+
+  pages:
+    needs: movie
+    if: needs.movie.outputs.run == 'true' && needs.movie.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy the page to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

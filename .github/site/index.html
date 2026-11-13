@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ASKAP polarisation leakage: history per SBID</title>
+<style>
+  body { font-family: sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; line-height: 1.5; }
+  video, img { max-width: 100%; height: auto; }
+</style>
+</head>
+<body>
+<h1>Historical leakage (per SBID)</h1>
+<p>One frame per SBID in observation order: its components, the fit and its place
+in the history. The leakage c is an upper limit in percent of Stokes I. The method and
+its assumptions are in the
+<a href="https://github.com/wasimraja81/askap-polarimetry#how-it-is-measured">repository README</a>.</p>
+<video src="leakage_history.mp4" controls preload="metadata" width="100%"></video>
+<p><a href="leakage_history.mp4">Download the movie</a></p>
+<h2>Leakage against observation date</h2>
+<img src="history_timeline.png" alt="Leakage upper limit per SBID against observation date">
+<h2>Monthly statistics of the per-SBID values</h2>
+<img src="history_monthly_stats.png" alt="Statistics of the per-SBID values in each month">
+<p><a href="https://github.com/wasimraja81/askap-polarimetry">Repository</a></p>
+</body>
+</html>

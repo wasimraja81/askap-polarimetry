@@ -10,15 +10,13 @@ history.
 of observation time. 733 have a leakage measurement; the 53 earliest (to
 2023-05-23) have no validation report on CASDA.
 
-## Movie
+## Historical Leakage (Per SBID)
 
 One frame per SBID in observation order: its components, the fit and its place
 in the history. The latest render:
 
-<video src="https://github.com/wasimraja81/askap-polarimetry/releases/download/movie-latest/leakage_history.mp4" controls width="100%"></video>
-
-If the player does not appear, download the file from the
-[`movie-latest` release](../../releases/tag/movie-latest).
+Watch it at **https://wasimraja81.github.io/askap-polarimetry/**, or download
+the file from the [`movie-latest` release](../../releases/tag/movie-latest).
 
 ## Result
 
