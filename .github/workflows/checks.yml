@@ -1,0 +1,13 @@
+name: checks
+
+# Fails if a file in the repository holds a home path, e-mail address, token or key.
+on:
+  push:
+  pull_request:
+
+jobs:
+  private-information:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash .github/scripts/check_private_info.sh

@@ -1,0 +1,32 @@
+# Environment and caches
+.venv/
+__pycache__/
+.DS_Store
+.ipynb_checkpoints/
+
+# Downloads, run folders, logs and caches
+data/
+
+# Throwaway work (only its README is tracked)
+scratch/*
+!scratch/README.md
+
+# Diagnostic outputs: only the figures are tracked
+diagnostics/outputs/*
+!diagnostics/outputs/*.png
+
+# Rendered movies (large); the script that makes them is tracked
+movies/
+
+# CASDA input files and the per-SBID plots made alongside them, wherever the scripts write them
+filtered_files/
+filtered_SB*.csv
+filtered_SB*.csv.part
+dLPvsI_SB*.png
+
+# Credentials and keys
+.netrc
+*.env
+.env
+*.pem
+*.key

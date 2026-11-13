@@ -1,0 +1,114 @@
+name: publish-movie
+
+# Renders the leakage movie and attaches it to the rolling release "movie-latest".
+# It publishes only when a push to main brings the tip of develop into main (a
+# fast-forward or merge-commit merge of develop). It can also be started by hand
+# from the Actions tab, with or without publishing.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Replace the movie attached to the movie-latest release"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-movie
+  cancel-in-progress: false
+
+jobs:
+  movie:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether to render and whether to publish
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          PUBLISH_INPUT: ${{ inputs.publish }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "publish=${PUBLISH_INPUT:-false}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git fetch --quiet origin develop; then
+            develop=$(git rev-parse FETCH_HEAD)
+            merged=$(bash .github/scripts/develop_merged.sh "$develop" "$GITHUB_SHA" "$BEFORE")
+          else
+            echo "No develop branch on the remote."
+            merged=false
+          fi
+          echo "This push brought develop into main: $merged"
+          echo "run=$merged" >> "$GITHUB_OUTPUT"
+          echo "publish=$merged" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          python-version: "3.9"
+          cache: pip
+
+      - name: Install Python packages and ffmpeg
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          python -m pip install -r requirements.txt
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
+      - name: Restore the downloaded component tables
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/cache@v4
+        with:
+          path: data/filtered
+          key: filtered-${{ hashFiles('results/sbs_all_time_ordered.csv') }}
+          restore-keys: filtered-
+
+      - name: Fetch the component tables listed in the results table
+        if: steps.gate.outputs.run == 'true'
+        run: python src/fetch_filtered.py --table results/sbs_all_time_ordered.csv --output_dir data/filtered
+
+      - name: Render the movie
+        if: steps.gate.outputs.run == 'true'
+        run: python src/make_movie.py --filtered_dir data/filtered --output movies/leakage_history.mp4
+
+      - name: Check the movie has one frame per SBID
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          rows=$(python -c "import pandas as pd; print(len(pd.read_csv('results/sbs_all_time_ordered.csv')))")
+          frames=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 movies/leakage_history.mp4)
+          echo "table rows: $rows, movie frames: $frames"
+          test "$rows" = "$frames"
+
+      - name: Replace the movie attached to the movie-latest release
+        if: steps.gate.outputs.run == 'true' && steps.gate.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag=movie-latest
+          notes="Rendered from commit $GITHUB_SHA on $(date -u +%Y-%m-%d) by the publish-movie workflow after develop was merged into main. The attached file is replaced at each such merge."
+          if gh release view "$tag" > /dev/null 2>&1; then
+            gh release edit "$tag" --notes "$notes"
+          else
+            gh release create "$tag" --title "Leakage history movie (latest render)" --notes "$notes" --latest=false --target "$GITHUB_SHA"
+          fi
+          gh release upload "$tag" movies/leakage_history.mp4 --clobber
+
+      - name: Keep the movie as a workflow artifact when it is not published
+        if: steps.gate.outputs.run == 'true' && steps.gate.outputs.publish != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: leakage_history
+          path: movies/leakage_history.mp4
+          retention-days: 7
